@@ -1,42 +1,118 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Water.css (forms + typography baseline) */
+@import url("https://cdn.jsdelivr.net/npm/water.css@2/out/water.css");
+
+/* ===== RESET + FIXES ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Remove Water max-width limitation */
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== FONT ===== */
+html {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: inherit;
+  background-color: #1f2937; /* dark slate */
+  color: #e5e7eb;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* ===== HEADINGS ===== */
+h1, h2, h3, h4, h5 {
+  font-weight: 600;
+  line-height: 1.3;
 }
 
+/* ===== LINKS ===== */
 a {
   color: inherit;
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* ===== FORM FIXES (VERY IMPORTANT) ===== */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+/* Prevent focus jump / scroll lock */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Improve Water.css dark inputs */
+input,
+textarea,
+select {
+  background-color: #111827;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+}
+
+/* Focus state */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px #22c55e;
+}
+
+/* ===== LABELS ===== */
+label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+/* ===== SMALL TEXT ===== */
+small {
+  display: block;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  background-color: #22c55e;
+  color: #052e16;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #16a34a;
+}
+
+/* ===== SCROLLBAR (optional, but nice) ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
