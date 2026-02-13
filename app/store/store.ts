@@ -7,7 +7,8 @@ type PersistedState = {
   sections: ReturnType<typeof sectionsReducer>;
 };
 
-const STORAGE_KEY = 'fastcv_state';
+const STORAGE_KEY = 'hero4job_state';
+const LEGACY_STORAGE_KEY = 'fastcv_state';
 
 const loadState = (): PersistedState | undefined => {
   if (typeof window === 'undefined') {
@@ -15,7 +16,9 @@ const loadState = (): PersistedState | undefined => {
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw =
+      window.localStorage.getItem(STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) {
       return undefined;
     }

@@ -33,22 +33,28 @@ export interface ExperienceType {
 export interface SkillType {
   name: string;
   proficiencyLevel?: 'N/A' | 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
-  description?: string;
 }
 
 export interface LanguageType {
   language: string;
   proficiencyLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Fluent' | 'Native';
+  cefrLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+  certificate?: {
+    name: string;
+    date?: DateParts;
+    expires?: DateParts;
+  };
 }
 
 export interface EducationType {
   institutionName: string;
-  startDate: string;
-  endDate?: string;
+  startDate: DateParts;
+  endDate?: DateParts;
   location?: string;
   degreeType?: string;
   fieldOfStudy?: string;
   description?: string;
+  stillStudying?: boolean;
 }
 
 export interface CVType {

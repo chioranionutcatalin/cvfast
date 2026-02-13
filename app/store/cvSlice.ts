@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CVType, ExperienceType, PersonalDataType, SkillType } from '../types';
+import { CVType, EducationType, ExperienceType, LanguageType, PersonalDataType, SkillType } from '../types';
 
 const initialState: CVType = {
   personalData: {
@@ -44,6 +44,18 @@ const cvSlice = createSlice({
     ) {
       state.skillsData = action.payload;
     },
+    setLanguagesData(
+      state,
+      action: PayloadAction<LanguageType[]>
+    ) {
+      state.languagesData = action.payload;
+    },
+    setEducationData(
+      state,
+      action: PayloadAction<EducationType[]>
+    ) {
+      state.educationData = action.payload;
+    },
     addSkill(state, action: PayloadAction<SkillType>) {
       state.skillsData.push(action.payload);
     },
@@ -68,6 +80,8 @@ export const {
   updatePersonalData,
   setExperienceData,
   setSkillsData,
+  setLanguagesData,
+  setEducationData,
   addSkill,
   removeSkillAt,
   clearSkillsData,

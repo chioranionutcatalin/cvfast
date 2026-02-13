@@ -2,61 +2,155 @@
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
-  background: #111827;
+  background: var(--app-bg);
 }
 
 .sidebar {
-  padding: 16px;
-  border-right: 1px solid #2f3b52;
-  background: #0f172a;
+  padding: 10px;
+  border-right: 1px solid var(--panel-border);
+  background: var(--panel-bg);
 }
 
 .logoContainer {
   display: flex;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .logo {
-  width: 120px;
+  width: 190px;
+  max-width: 100%;
   height: auto;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .navItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 6px;
 }
 
 .navButton {
   flex: 1;
-  padding: 6px 8px;
+  padding: 3px 6px;
   border-radius: 6px;
   text-decoration: none;
-  color: #e5e7eb;
+  color: inherit;
   text-decoration: none;
+  font-size: 0.85rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none;
 }
 
 .navButton:hover {
-  background: #111827;
-  color: #22c55e;
+  background: var(--panel-hover);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.navButton:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.navButton:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .navButton:visited {
-  color: #e5e7eb;
+  color: inherit;
 }
 
 .divider {
   height: 1px;
-  background: #2f3b52;
-  margin: 12px 0;
+  background: var(--panel-border);
+  margin: 8px 0;
+}
+
+.navLabel {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 3px 6px;
+}
+
+.layoutSelector,
+.previewPageSelector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.layoutOption {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.layoutOption:hover,
+.layoutOption:focus-visible {
+  background: var(--panel-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.layoutOptionActive {
+  border-color: var(--accent);
+  background: var(--panel-hover);
+  color: var(--accent);
+}
+
+.layoutOptionActive:hover,
+.layoutOptionActive:focus-visible {
+  background: var(--panel-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .navItem {
+    width: auto;
+  }
+
+  .navButton {
+    white-space: nowrap;
+  }
+
+  .divider {
+    width: 100%;
+  }
+
+  .switch {
+    transform: scale(0.9);
+  }
 }
 
 /* Switch */
@@ -64,6 +158,8 @@
   position: relative;
   width: 36px;
   height: 20px;
+  transform: scale(0.9);
+  transform-origin: right center;
 }
 
 .switch input {
@@ -99,7 +195,7 @@
 
 .main {
   padding: 24px;
-  color: #e5e7eb;
+  color: inherit;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -109,21 +205,133 @@
   max-width: 720px;
   padding: 24px 28px;
   border-radius: 14px;
-  background: #0f172a;
-  border: 1px solid #2f3b52;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.45);
 }
 
-.previewCard {
-  width: min(1100px, 100%);
-  padding: 24px 28px;
-  border-radius: 16px;
-  background: #0b1221;
-  border: 1px solid #2f3b52;
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.5);
+.previewPageWrapper {
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+}
+
+.previewSingleCard {
+  margin: 0 auto;
+}
+
+.previewCard.previewSingleCard {
+  width: 50%;
+}
+
+.previewPageTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.homeModelsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.homeModelsTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.previewGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.previewCard {
+  width: 100%;
+  padding: 28px 32px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-primary);
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, opacity 0.22s ease;
+}
+
+.previewModelCard {
+  padding: 20px 22px;
+}
+
+.previewModelCard .previewName {
+  font-size: 1.35rem;
+}
+
+.previewModelCard .previewAvatar {
+  width: 78px;
+  height: 78px;
+}
+
+.previewModelCard .previewAvatarFuture {
+  width: 86px;
+  height: 86px;
+}
+
+.previewModelCard .previewSummary,
+.previewModelCard .previewMeta,
+.previewModelCard .previewSection,
+.previewModelCard .previewRow,
+.previewModelCard .previewSubRow,
+.previewModelCard .previewListSimple,
+.previewModelCard .previewSkillsList {
+  font-size: 0.9rem;
+}
+
+.previewClassic {
+  background: var(--panel-bg);
+}
+
+.previewCardSelected {
+  transform: translateY(-3px) scale(1.015);
+  border-color: var(--accent);
+  box-shadow: 0 26px 56px rgba(15, 23, 42, 0.35);
+  z-index: 2;
+  animation: previewNudge 0.28s ease-out;
+}
+
+.previewCardMuted {
+  opacity: 0.9;
+  transform: scale(0.99);
+  z-index: 1;
+}
+
+@keyframes previewNudge {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    transform: translateY(-3px) scale(1.015);
+  }
+}
+
+.previewCard * {
+  color: inherit;
+}
+
+.previewIntro {
+  margin: 0;
+  font-size: 0.95rem;
+  color: inherit;
 }
 
 .previewHeader {
@@ -134,6 +342,7 @@
 
 .previewHeader h2 {
   margin: 0;
+  color: inherit;
 }
 
 .previewBadge {
@@ -142,9 +351,9 @@
   letter-spacing: 0.08em;
   padding: 4px 10px;
   border-radius: 999px;
-  background: #1f2937;
-  color: #22c55e;
-  border: 1px solid #2f3b52;
+  background: var(--panel-hover);
+  color: var(--accent);
+  border: 1px solid var(--panel-border);
 }
 
 .previewBody {
@@ -155,34 +364,57 @@
 
 .previewTop {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-start;
   gap: 24px;
+}
+
+.previewIdentity {
+  flex: 1;
+  min-width: 0;
 }
 
 .previewName {
   font-size: 1.6rem;
   margin: 0 0 4px 0;
+  color: inherit;
 }
 
 .previewRole {
   font-size: 0.95rem;
-  color: #93c5fd;
+  color: var(--text-muted);
   margin-bottom: 8px;
 }
 
 .previewSummary {
   margin: 0;
-  color: #cbd5f5;
+  color: var(--text-primary);
+}
+
+.previewTopFuture {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.previewSummaryFuture {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 10px;
+}
+
+.previewAvatarFuture {
+  width: 104px;
+  height: 104px;
 }
 
 .previewAvatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #2f3b52;
-  background: #111827;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg);
 }
 
 .previewMeta {
@@ -190,11 +422,83 @@
   flex-wrap: wrap;
   gap: 10px 18px;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
+}
+
+.previewMetaItem {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.previewMetaLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.previewMetaFuture .previewMetaItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.previewCompact {
+  background: var(--panel-bg);
+  border-style: solid;
+}
+
+.previewFutureLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.previewFutureMain,
+.previewFutureSide {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.previewFutureSide .previewSection {
+  padding-top: 10px;
+}
+
+.previewSkillsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.previewSkillsList li {
+  padding-bottom: 4px;
+}
+
+.previewSectionFutureMain {
+  margin-top: 8px;
+}
+
+.previewListFuture {
+  gap: 20px;
+}
+
+.previewItemFuture {
+  gap: 10px;
+}
+
+.previewCompact .previewSection h4 {
+  letter-spacing: 0.04em;
+}
+
+.previewCompact .previewTags span {
+  border-radius: 8px;
 }
 
 .previewSection {
-  border-top: 1px solid #2f3b52;
+  border-top: 2px solid var(--panel-border);
   padding-top: 16px;
   display: flex;
   flex-direction: column;
@@ -204,11 +508,12 @@
 .previewSection h4 {
   margin: 0;
   font-size: 1rem;
+  color: inherit;
 }
 
 .previewEmpty {
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -218,11 +523,22 @@
   gap: 12px;
 }
 
+.previewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .previewRow {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.previewRow strong {
+  color: inherit;
 }
 
 .previewSubRow {
@@ -230,7 +546,13 @@
   justify-content: space-between;
   gap: 12px;
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: var(--text-muted);
+}
+
+.previewExperienceDesc {
+  margin: 2px 0 0;
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .previewTags {
@@ -240,11 +562,12 @@
 }
 
 .previewTags span {
-  background: #111827;
-  border: 1px solid #2f3b52;
+  background: var(--panel-hover);
+  border: 1px solid var(--panel-border);
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 0.8rem;
+  color: var(--text-primary);
 }
 
 .previewListSimple {
@@ -254,16 +577,49 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 @media (max-width: 900px) {
+  .previewGrid {
+    grid-template-columns: 1fr;
+  }
+
   .previewTop {
     flex-direction: column;
+  }
+
+  .previewTopFuture {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .previewFutureLayout {
+    grid-template-columns: 1fr;
   }
 
   .previewAvatar {
     width: 72px;
     height: 72px;
+  }
+
+  .previewAvatarFuture {
+    width: 72px;
+    height: 72px;
+  }
+
+  .previewCardSelected,
+  .previewCardMuted {
+    transform: none;
+    opacity: 1;
+    animation: none;
+  }
+
+  .previewSingleCard {
+    width: 100%;
+  }
+
+  .previewCard.previewSingleCard {
+    width: 100%;
   }
 }

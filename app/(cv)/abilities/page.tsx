@@ -131,11 +131,16 @@ export default function AbilitiesPage() {
                           required: "Ability name is required",
                         })}
                       />
-                      {getFieldError(namePath, errors) && (
-                        <span className={styles.errorText}>
-                          {getFieldError(namePath, errors)}
-                        </span>
-                      )}
+                      <div className={styles.validationSlot}>
+                        {getFieldError(namePath, errors) && (
+                          <span className={styles.errorText}>
+                            {getFieldError(namePath, errors)}
+                          </span>
+                        )}
+                        {!getFieldError(namePath, errors) && (
+                          <span className={styles.placeholderText}>OK</span>
+                        )}
+                      </div>
                     </label>
                     <label className={styles.field}>
                       Level
@@ -146,6 +151,9 @@ export default function AbilitiesPage() {
                           </option>
                         ))}
                       </select>
+                      <div className={styles.validationSlot}>
+                        <span className={styles.placeholderText}>OK</span>
+                      </div>
                     </label>
                   </div>
 
@@ -157,6 +165,9 @@ export default function AbilitiesPage() {
                       placeholder="Short note about this ability"
                       {...register(descriptionPath)}
                     />
+                    <div className={styles.validationSlot}>
+                      <span className={styles.placeholderText}>OK</span>
+                    </div>
                   </label>
                 </section>
               );

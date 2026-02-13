@@ -1,63 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import type { FieldErrors, FieldPath } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setExperienceData } from "../../store/cvSlice";
-import { DateParts, ExperienceType } from "../../types";
+import { setEducationData } from "../../store/cvSlice";
+import { DateParts, EducationType } from "../../types";
 import styles from "./page.module.css";
 
-type ExperienceFormEntry = {
-  role: string;
-  companyName: string;
+type EducationFormEntry = {
+  institutionName: string;
+  degreeType?: string;
+  fieldOfStudy?: string;
+  location?: string;
   startDate: string;
   endDate?: string;
-  location?: string;
-  remote?: boolean;
-  stillWorkingHere?: boolean;
+  stillStudying?: boolean;
   description?: string;
 };
 
-type ExperienceFormValues = {
-  experienceData: ExperienceFormEntry[];
+type EducationFormValues = {
+  educationData: EducationFormEntry[];
 };
 
-type ExperienceFieldPath = FieldPath<ExperienceFormValues>;
+type EducationFieldPath = FieldPath<EducationFormValues>;
 
-const emptyExperience: ExperienceFormEntry = {
-  role: "",
-  companyName: "",
+const emptyEducation: EducationFormEntry = {
+  institutionName: "",
+  degreeType: "",
+  fieldOfStudy: "",
+  location: "",
   startDate: "",
   endDate: "",
-  location: "",
-  remote: false,
-  stillWorkingHere: false,
+  stillStudying: false,
   description: "",
 };
 
-export default function ExperiencePage() {
+export default function EducationPage() {
   const dispatch = useAppDispatch();
-  const experienceData = useAppSelector((state) => state.cv.experienceData);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const educationData = useAppSelector((state) => state.cv.educationData);
 
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  const defaultValues = useMemo<ExperienceFormValues>(() => {
+  const defaultValues = useMemo<EducationFormValues>(() => {
     return {
-      experienceData: experienceData.length
-        ? experienceData.map(entry => ({
+      educationData: educationData.length
+        ? educationData.map((entry) => ({
             ...entry,
             startDate: formatDateValue(entry.startDate as DateParts | string),
             endDate: entry.endDate
               ? formatDateValue(entry.endDate as DateParts | string)
               : "",
           }))
-        : [emptyExperience],
+        : [emptyEducation],
     };
-  }, [experienceData]);
+  }, [educationData]);
 
   const {
     register,
@@ -68,7 +63,7 @@ export default function ExperiencePage() {
     watch,
     handleSubmit,
     formState: { errors, isSubmitted },
-  } = useForm<ExperienceFormValues>({
+  } = useForm<EducationFormValues>({
     defaultValues,
     mode: "onSubmit",
     reValidateMode: "onChange",
@@ -77,11 +72,11 @@ export default function ExperiencePage() {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "experienceData",
+    name: "educationData",
   });
 
   const isFieldValid = useCallback(
-    (path: ExperienceFieldPath, requireValue = true) => {
+    (path: EducationFieldPath, requireValue = true) => {
       const fieldState = getFieldState(path);
       const value = getValues(path) as unknown;
       const hasValue =
@@ -99,53 +94,59 @@ export default function ExperiencePage() {
   );
 
   const handleSave = useCallback(
-    (data: ExperienceFormValues) => {
-      const mapped = data.experienceData.map(entry => ({
-        ...entry,
-        startDate: parseDateInput(entry.startDate) as DateParts,
-        endDate: entry.endDate ? parseDateInput(entry.endDate) : undefined,
-      }));
-      dispatch(setExperienceData(mapped));
+    (data: EducationFormValues) => {
+      const mapped: EducationType[] = data.educationData
+        .map((entry) => ({
+          ...entry,
+          institutionName: entry.institutionName.trim(),
+          degreeType: entry.degreeType?.trim() || "",
+          fieldOfStudy: entry.fieldOfStudy?.trim() || "",
+          location: entry.location?.trim() || "",
+          description: entry.description?.trim() || "",
+          startDate: parseDateInput(entry.startDate) as DateParts,
+          endDate: entry.endDate ? parseDateInput(entry.endDate) : undefined,
+        }))
+        .filter((entry) => entry.institutionName);
+
+      dispatch(setEducationData(mapped));
     },
     [dispatch],
   );
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(handleSave)}>
-      <fieldset className={styles.experienceWrapper}>
-        <legend className={styles.legend}>Experience</legend>
+      <fieldset className={styles.educationWrapper}>
+        <legend className={styles.legend}>Education</legend>
         <div className={styles.sectionHeader}>
           <p className={styles.sectionTitle}>
-            Add your relevant roles. At least one entry is required.
+            Add your education history. At least one entry is required.
           </p>
           <button
             type="button"
             className={styles.addButton}
-            onClick={() => append({ ...emptyExperience })}
+            onClick={() => append({ ...emptyEducation })}
           >
-            + Add experience
+            + Add education
           </button>
         </div>
 
-        {isHydrated && (
-          <div className={styles.experienceList}>
-            {fields.map((field, index) => {
-            const rolePath = `experienceData.${index}.role` as ExperienceFieldPath;
-            const companyPath = `experienceData.${index}.companyName` as ExperienceFieldPath;
-            const startPath = `experienceData.${index}.startDate` as ExperienceFieldPath;
-            const endPath = `experienceData.${index}.endDate` as ExperienceFieldPath;
-            const locationPath = `experienceData.${index}.location` as ExperienceFieldPath;
-            const remotePath = `experienceData.${index}.remote` as ExperienceFieldPath;
-            const stillPath = `experienceData.${index}.stillWorkingHere` as ExperienceFieldPath;
-            const descriptionPath = `experienceData.${index}.description` as ExperienceFieldPath;
+        <div className={styles.educationList}>
+          {fields.map((field, index) => {
+            const institutionPath = `educationData.${index}.institutionName` as EducationFieldPath;
+            const degreePath = `educationData.${index}.degreeType` as EducationFieldPath;
+            const fieldPath = `educationData.${index}.fieldOfStudy` as EducationFieldPath;
+            const locationPath = `educationData.${index}.location` as EducationFieldPath;
+            const startPath = `educationData.${index}.startDate` as EducationFieldPath;
+            const endPath = `educationData.${index}.endDate` as EducationFieldPath;
+            const presentPath = `educationData.${index}.stillStudying` as EducationFieldPath;
+            const descriptionPath = `educationData.${index}.description` as EducationFieldPath;
 
-            const isPresent = Boolean(watch(stillPath));
-            const isRemote = Boolean(watch(remotePath));
+            const isPresent = Boolean(watch(presentPath));
 
-              return (
-                <section key={field.id} className={styles.experienceCard}>
+            return (
+              <section key={field.id} className={styles.educationCard}>
                 <header className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>Experience #{index + 1}</h3>
+                  <h3 className={styles.cardTitle}>Education #{index + 1}</h3>
                   {fields.length > 1 && (
                     <div className={styles.cardActions}>
                       <button
@@ -161,47 +162,47 @@ export default function ExperiencePage() {
 
                 <div className={styles.inlineFields}>
                   <label className={styles.field}>
-                    Job Title *
+                    Degree / Program *
                     <input
-                      className={`${styles.customInput} ${getFieldError(rolePath, errors) ? styles.inputError : ""}`}
-                      placeholder="Job title"
-                      {...register(rolePath, {
-                        required: "Job title is required",
+                      className={`${styles.customInput} ${getFieldError(degreePath, errors) ? styles.inputError : ""}`}
+                      placeholder="Bachelor's degree"
+                      {...register(degreePath, {
+                        required: "Degree or program is required",
                       })}
                     />
                     <div className={styles.validationSlot}>
-                      {getFieldError(rolePath, errors) && (
+                      {getFieldError(degreePath, errors) && (
                         <span className={styles.errorText}>
-                          {getFieldError(rolePath, errors)}
+                          {getFieldError(degreePath, errors)}
                         </span>
                       )}
-                      {!getFieldError(rolePath, errors) && isFieldValid(rolePath) && (
+                      {!getFieldError(degreePath, errors) && isFieldValid(degreePath) && (
                         <span className={styles.validText}>OK</span>
                       )}
-                      {!getFieldError(rolePath, errors) && !isFieldValid(rolePath) && (
+                      {!getFieldError(degreePath, errors) && !isFieldValid(degreePath) && (
                         <span className={styles.placeholderText}>OK</span>
                       )}
                     </div>
                   </label>
                   <label className={styles.field}>
-                    Company *
+                    Institution *
                     <input
-                      className={`${styles.customInput} ${getFieldError(companyPath, errors) ? styles.inputError : ""}`}
-                      placeholder="Company name"
-                      {...register(companyPath, {
-                        required: "Company is required",
+                      className={`${styles.customInput} ${getFieldError(institutionPath, errors) ? styles.inputError : ""}`}
+                      placeholder="Technical University of Cluj Napoca"
+                      {...register(institutionPath, {
+                        required: "Institution is required",
                       })}
                     />
                     <div className={styles.validationSlot}>
-                      {getFieldError(companyPath, errors) && (
+                      {getFieldError(institutionPath, errors) && (
                         <span className={styles.errorText}>
-                          {getFieldError(companyPath, errors)}
+                          {getFieldError(institutionPath, errors)}
                         </span>
                       )}
-                      {!getFieldError(companyPath, errors) && isFieldValid(companyPath) && (
+                      {!getFieldError(institutionPath, errors) && isFieldValid(institutionPath) && (
                         <span className={styles.validText}>OK</span>
                       )}
-                      {!getFieldError(companyPath, errors) && !isFieldValid(companyPath) && (
+                      {!getFieldError(institutionPath, errors) && !isFieldValid(institutionPath) && (
                         <span className={styles.placeholderText}>OK</span>
                       )}
                     </div>
@@ -209,9 +210,34 @@ export default function ExperiencePage() {
                 </div>
 
                 <div className={styles.inlineFields}>
+                  <label className={styles.field}>
+                    Location
+                    <input
+                      className={styles.customInput}
+                      placeholder="Romania, Cluj-Napoca"
+                      {...register(locationPath)}
+                    />
+                    <div className={styles.validationSlot}>
+                      <span className={styles.placeholderText}>OK</span>
+                    </div>
+                  </label>
+                  <label className={styles.field}>
+                    Field of Study
+                    <input
+                      className={styles.customInput}
+                      placeholder="Automation and Applied Informatics"
+                      {...register(fieldPath)}
+                    />
+                    <div className={styles.validationSlot}>
+                      <span className={styles.placeholderText}>OK</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div className={styles.inlineFields}>
                   <div className={styles.field}>
                     <label>
-                      Start Date *
+                      Start Month *
                       <input
                         className={`${styles.customInput} ${getFieldError(startPath, errors) ? styles.inputError : ""}`}
                         placeholder="MM/YYYY or DD/MM/YYYY"
@@ -241,14 +267,14 @@ export default function ExperiencePage() {
                   </div>
                   <div className={styles.field}>
                     <label>
-                      End Date
+                      End Month
                       <input
                         className={styles.customInput}
                         placeholder="MM/YYYY or DD/MM/YYYY"
                         disabled={isPresent}
                         {...register(endPath, {
-                          validate: value => {
-                            if (watch(stillPath)) {
+                          validate: (value) => {
+                            if (watch(presentPath)) {
                               return true;
                             }
                             if (typeof value !== "string" || value.trim() === "") {
@@ -270,10 +296,10 @@ export default function ExperiencePage() {
                           {getFieldError(endPath, errors)}
                         </span>
                       )}
-                      {!getFieldError(endPath, errors) && isFieldValid(endPath) && (
+                      {!getFieldError(endPath, errors) && isFieldValid(endPath, false) && (
                         <span className={styles.validText}>OK</span>
                       )}
-                      {!getFieldError(endPath, errors) && !isFieldValid(endPath) && (
+                      {!getFieldError(endPath, errors) && !isFieldValid(endPath, false) && (
                         <span className={styles.placeholderText}>OK</span>
                       )}
                     </div>
@@ -283,12 +309,12 @@ export default function ExperiencePage() {
                 <div className={styles.inlineFields}>
                   <div className={`${styles.field} ${styles.fullRow}`}>
                     <div className={styles.switchRow}>
-                      <span>Still working here</span>
+                      <span>Still here</span>
                       <label className={styles.switch}>
                         <input
                           type="checkbox"
-                          {...register(stillPath, {
-                            onChange: event => {
+                          {...register(presentPath, {
+                            onChange: (event) => {
                               const checked = event.target.checked;
                               if (checked) {
                                 setValue(endPath, "", { shouldDirty: true });
@@ -302,54 +328,11 @@ export default function ExperiencePage() {
                   </div>
                 </div>
 
-                <div className={styles.inlineFields}>
-                  <div className={styles.field}>
-                    <label>
-                      Location
-                      <input
-                        className={styles.customInput}
-                        placeholder="Location"
-                        disabled={isRemote}
-                        {...register(locationPath)}
-                      />
-                    </label>
-                    <div className={styles.switchRow}>
-                      <span>Remote</span>
-                      <label className={styles.switch}>
-                        <input
-                          type="checkbox"
-                          {...register(remotePath, {
-                            onChange: event => {
-                              const checked = event.target.checked;
-                              const currentValue = getValues(locationPath);
-                              const current =
-                                typeof currentValue === "string" ? currentValue : "";
-                              const withoutRemote = current
-                                .replace(/\s*\(Remote\)\s*$/i, "")
-                                .trim();
-
-                              const next = checked
-                                ? (withoutRemote ? `${withoutRemote} (Remote)` : "Remote")
-                                : withoutRemote;
-
-                              setValue(locationPath, next, { shouldDirty: true });
-                            },
-                          })}
-                        />
-                        <span className={styles.slider} />
-                      </label>
-                    </div>
-                    <div className={styles.validationSlot}>
-                      <span className={styles.placeholderText}>OK</span>
-                    </div>
-                  </div>
-                </div>
-
                 <label className={styles.field}>
-                  Job Description
+                  Description
                   <textarea
                     className={styles.customInput}
-                    placeholder="Describe your responsibilities and achievements"
+                    placeholder="Thesis, key subjects, or honors (optional)"
                     rows={4}
                     {...register(descriptionPath)}
                   />
@@ -358,13 +341,12 @@ export default function ExperiencePage() {
                   </div>
                 </label>
               </section>
-              );
-            })}
-          </div>
-        )}
+            );
+          })}
+        </div>
 
         <button type="submit" className={styles.saveButton}>
-          Save Experience
+          Save Education
         </button>
       </fieldset>
     </form>
@@ -372,8 +354,8 @@ export default function ExperiencePage() {
 }
 
 function getFieldError(
-  path: ExperienceFieldPath,
-  errors: FieldErrors<ExperienceFormValues>,
+  path: EducationFieldPath,
+  errors: FieldErrors<EducationFormValues>,
 ) {
   const parts = path.split(".");
   let current: unknown = errors;

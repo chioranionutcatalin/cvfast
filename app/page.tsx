@@ -1,204 +1,122 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SideNavigation } from "./components/SideNavigation";
-import { useAppSelector } from "./store/hooks";
-import type { DateParts } from "./types";
 import styles from "./page.module.css";
+import { CvLayoutPreview } from "./components/CvLayoutPreview";
+import { HOME_MODEL_CVS, type CvLayout } from "./cvConsts";
+import { useAppSelector } from "./store/hooks";
+
+const DOWNLOAD_LAYOUT_KEY = "hero4job_download_layout";
+const LEGACY_DOWNLOAD_LAYOUT_KEY = "fastcv_download_layout";
+const DOWNLOAD_LAYOUT_EVENT = "hero4job:download-layout";
+const LEGACY_DOWNLOAD_LAYOUT_EVENT = "fastcv:download-layout";
 
 export default function HomePage() {
   const [isHydrated, setIsHydrated] = useState(false);
-  const cv = useAppSelector((state) => state.cv);
+  const [selectedLayout, setSelectedLayout] = useState<CvLayout>("classic");
   const sections = useAppSelector((state) => state.sections);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  const fullName = [cv.personalData.firstName, cv.personalData.lastName]
-    .filter(Boolean)
-    .join(" ");
+  const applyDownloadLayout = (next: CvLayout) => {
+    setSelectedLayout(next);
+    window.localStorage.setItem(DOWNLOAD_LAYOUT_KEY, next);
+    window.localStorage.setItem(LEGACY_DOWNLOAD_LAYOUT_KEY, next);
+    window.dispatchEvent(
+      new CustomEvent(DOWNLOAD_LAYOUT_EVENT, {
+        detail: next,
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent(LEGACY_DOWNLOAD_LAYOUT_EVENT, {
+        detail: next,
+      }),
+    );
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: DOWNLOAD_LAYOUT_KEY,
+        newValue: next,
+      }),
+    );
+  };
+
+  useEffect(() => {
+    const stored =
+      window.localStorage.getItem(DOWNLOAD_LAYOUT_KEY) ??
+      window.localStorage.getItem(LEGACY_DOWNLOAD_LAYOUT_KEY);
+    if (stored === "classic" || stored === "compact") {
+      setSelectedLayout(stored);
+    } else if (stored) {
+      setSelectedLayout("compact");
+      window.localStorage.setItem(DOWNLOAD_LAYOUT_KEY, "compact");
+      window.localStorage.setItem(LEGACY_DOWNLOAD_LAYOUT_KEY, "compact");
+    }
+
+    const handleLayoutChange = (event: Event) => {
+      const customEvent = event as CustomEvent<CvLayout>;
+      if (customEvent.detail === "classic" || customEvent.detail === "compact") {
+        setSelectedLayout(customEvent.detail);
+      }
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== DOWNLOAD_LAYOUT_KEY && event.key !== LEGACY_DOWNLOAD_LAYOUT_KEY) {
+        return;
+      }
+      if (event.newValue === "classic" || event.newValue === "compact") {
+        setSelectedLayout(event.newValue);
+      } else if (event.newValue) {
+        setSelectedLayout("compact");
+        window.localStorage.setItem(DOWNLOAD_LAYOUT_KEY, "compact");
+        window.localStorage.setItem(LEGACY_DOWNLOAD_LAYOUT_KEY, "compact");
+      }
+    };
+
+    window.addEventListener(DOWNLOAD_LAYOUT_EVENT, handleLayoutChange as EventListener);
+    window.addEventListener(LEGACY_DOWNLOAD_LAYOUT_EVENT, handleLayoutChange as EventListener);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener(DOWNLOAD_LAYOUT_EVENT, handleLayoutChange as EventListener);
+      window.removeEventListener(LEGACY_DOWNLOAD_LAYOUT_EVENT, handleLayoutChange as EventListener);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   return (
-    <div className={styles.container}>
-      <SideNavigation />
-      <main className={styles.main}>
-        <section className={styles.welcomeCard}>
-          <h1>Welcome to FastCV</h1>
-          <p>Select a section to start building your CV.</p>
-        </section>
-
+      <>
         {isHydrated && (
-          <section className={styles.previewCard}>
-          <header className={styles.previewHeader}>
-            <h2>CV Preview</h2>
-            <span className={styles.previewBadge}>Live</span>
-          </header>
-
-          <div className={styles.previewBody}>
-            <div className={styles.previewTop}>
-              <div>
-                <h3 className={styles.previewName}>
-                  {fullName || "Your Name"}
-                </h3>
-                {cv.personalData.desiredJobTitle && (
-                  <div className={styles.previewRole}>
-                    {cv.personalData.desiredJobTitle}
-                  </div>
-                )}
-                {cv.personalData.summary && (
-                  <p className={styles.previewSummary}>{cv.personalData.summary}</p>
-                )}
-              </div>
-
-              {cv.personalData.profileImageUrl && (
-                <img
-                  className={styles.previewAvatar}
-                  src={cv.personalData.profileImageUrl}
-                  alt="Profile"
+          <section className={styles.homeModelsSection}>
+            <h2 className={styles.homeModelsTitle}>Pick your hero for the job.</h2>
+            <div className={styles.previewGrid}>
+              <section
+                id="cv-preview-classic"
+                className={`${styles.previewCard} ${styles.previewClassic} ${styles.previewModelCard} ${selectedLayout === "classic" ? styles.previewCardSelected : styles.previewCardMuted}`}
+                onClick={() => applyDownloadLayout("classic")}
+              >
+                <CvLayoutPreview
+                  cv={HOME_MODEL_CVS.classic}
+                  sections={sections}
+                  layout="classic"
                 />
-              )}
+              </section>
+
+              <section
+                id="cv-preview-compact"
+                className={`${styles.previewCard} ${styles.previewCompact} ${styles.previewModelCard} ${selectedLayout === "compact" ? styles.previewCardSelected : styles.previewCardMuted}`}
+                onClick={() => applyDownloadLayout("compact")}
+              >
+                <CvLayoutPreview
+                  cv={HOME_MODEL_CVS.compact}
+                  sections={sections}
+                  layout="compact"
+                />
+              </section>
             </div>
-
-            <div className={styles.previewMeta}>
-              {cv.personalData.email && <span>{cv.personalData.email}</span>}
-              {cv.personalData.phone && <span>{cv.personalData.phone}</span>}
-              {(cv.personalData.city || cv.personalData.country) && (
-                <span>
-                  {[cv.personalData.city, cv.personalData.country]
-                    .filter(Boolean)
-                    .join(", ")}
-                </span>
-              )}
-              {cv.personalData.linkedInUrl && (
-                <span>{cv.personalData.linkedInUrl}</span>
-              )}
-              {cv.personalData.personalWebsite && (
-                <span>{cv.personalData.personalWebsite}</span>
-              )}
-            </div>
-
-            {sections.experience && (
-              <section className={styles.previewSection}>
-                <h4>Experience</h4>
-                {cv.experienceData.length === 0 ? (
-                  <p className={styles.previewEmpty}>No experience added.</p>
-                ) : (
-                  <div className={styles.previewList}>
-                    {cv.experienceData.map((item, index) => (
-                      <article key={`${item.companyName}-${index}`}>
-                        <div className={styles.previewRow}>
-                          <strong>{item.role}</strong>
-                          <span>
-                            {formatDateValue(item.startDate)} -
-                            {item.stillWorkingHere
-                              ? " Present"
-                              : item.endDate
-                                ? ` ${formatDateValue(item.endDate)}`
-                                : ""}
-                          </span>
-                        </div>
-                        <div className={styles.previewSubRow}>
-                          <span>{item.companyName}</span>
-                          {item.location && <span>{item.location}</span>}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-
-            {sections.skills && (
-              <section className={styles.previewSection}>
-                <h4>Skills</h4>
-                {cv.skillsData.length === 0 ? (
-                  <p className={styles.previewEmpty}>No skills added.</p>
-                ) : (
-                  <div className={styles.previewTags}>
-                    {cv.skillsData.map((item, index) => (
-                      <span key={`${item.name}-${index}`}>
-                        {item.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-
-            {sections.languages && (
-              <section className={styles.previewSection}>
-                <h4>Languages</h4>
-                {cv.languagesData.length === 0 ? (
-                  <p className={styles.previewEmpty}>No languages added.</p>
-                ) : (
-                  <ul className={styles.previewListSimple}>
-                    {cv.languagesData.map((item, index) => (
-                      <li key={`${item.language}-${index}`}>
-                        {item.language}
-                        {item.proficiencyLevel ? ` - ${item.proficiencyLevel}` : ""}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            )}
-
-            {sections.education && (
-              <section className={styles.previewSection}>
-                <h4>Education</h4>
-                {cv.educationData.length === 0 ? (
-                  <p className={styles.previewEmpty}>No education added.</p>
-                ) : (
-                  <div className={styles.previewList}>
-                    {cv.educationData.map((item, index) => (
-                      <article key={`${item.institutionName}-${index}`}>
-                        <div className={styles.previewRow}>
-                          <strong>{item.institutionName}</strong>
-                          <span>
-                            {formatDateValue(item.startDate)} -
-                            {item.endDate ? ` ${formatDateValue(item.endDate)}` : ""}
-                          </span>
-                        </div>
-                        <div className={styles.previewSubRow}>
-                          <span>
-                            {item.degreeType || item.fieldOfStudy
-                              ? [item.degreeType, item.fieldOfStudy]
-                                  .filter(Boolean)
-                                  .join(" - ")
-                              : ""}
-                          </span>
-                          {item.location && <span>{item.location}</span>}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
-            )}
-          </div>
           </section>
         )}
-      </main>
-    </div>
+    </>
   );
-}
-
-function formatDateValue(value: DateParts | string | undefined): string {
-  if (!value) {
-    return "";
-  }
-  if (typeof value === "string") {
-    return value;
-  }
-
-  const month = String(value.month).padStart(2, "0");
-  const year = String(value.year);
-
-  if (value.day === null) {
-    return `${month}/${year}`;
-  }
-
-  const day = String(value.day).padStart(2, "0");
-  return `${day}/${month}/${year}`;
 }

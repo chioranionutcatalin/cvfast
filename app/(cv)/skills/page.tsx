@@ -11,7 +11,6 @@ import styles from "./page.module.css";
 type SkillFormEntry = {
   name: string;
   proficiencyLevel?: SkillType["proficiencyLevel"];
-  description?: string;
 };
 
 type SkillFormValues = {
@@ -31,7 +30,6 @@ const levelOptions: SkillType["proficiencyLevel"][] = [
 const emptySkill: SkillFormEntry = {
   name: "",
   proficiencyLevel: "N/A",
-  description: "",
 };
 
 export default function SkillsPage() {
@@ -68,9 +66,8 @@ export default function SkillsPage() {
     (data: SkillFormValues) => {
       const mapped = data.skills
         .map(entry => ({
-          ...entry,
           name: entry.name.trim(),
-          description: entry.description?.trim() || "",
+          proficiencyLevel: entry.proficiencyLevel,
         }))
         .filter(entry => entry.name);
 
@@ -102,7 +99,6 @@ export default function SkillsPage() {
             {fields.map((field, index) => {
               const namePath = `skills.${index}.name` as SkillFieldPath;
               const levelPath = `skills.${index}.proficiencyLevel` as SkillFieldPath;
-              const descriptionPath = `skills.${index}.description` as SkillFieldPath;
 
               return (
                 <section key={field.id} className={styles.skillCard}>
@@ -129,11 +125,16 @@ export default function SkillsPage() {
                           required: "Skill name is required",
                         })}
                       />
-                      {getFieldError(namePath, errors) && (
-                        <span className={styles.errorText}>
-                          {getFieldError(namePath, errors)}
-                        </span>
-                      )}
+                      <div className={styles.validationSlot}>
+                        {getFieldError(namePath, errors) && (
+                          <span className={styles.errorText}>
+                            {getFieldError(namePath, errors)}
+                          </span>
+                        )}
+                        {!getFieldError(namePath, errors) && (
+                          <span className={styles.placeholderText}>OK</span>
+                        )}
+                      </div>
                     </label>
                     <label className={styles.field}>
                       Level
@@ -144,18 +145,12 @@ export default function SkillsPage() {
                           </option>
                         ))}
                       </select>
+                      <div className={styles.validationSlot}>
+                        <span className={styles.placeholderText}>OK</span>
+                      </div>
                     </label>
                   </div>
 
-                  <label className={styles.field}>
-                    Description (optional)
-                    <textarea
-                      className={styles.customInput}
-                      rows={3}
-                      placeholder="Short note about this skill"
-                      {...register(descriptionPath)}
-                    />
-                  </label>
                 </section>
               );
             })}
