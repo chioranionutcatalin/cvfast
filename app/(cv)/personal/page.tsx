@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { updatePersonalData } from "../../store/cvSlice";
 import { PersonalDataType } from "../../../app/types";
@@ -12,8 +11,6 @@ import styles from "./page.module.css";
 export default function PersonalPage() {
   const dispatch = useAppDispatch();
   const personalData = useAppSelector((state) => state.cv.personalData);
-  const searchParams = useSearchParams();
-  const showDebug = searchParams?.has("dev");
   const [isHydrated, setIsHydrated] = useState(false);
 
   const {

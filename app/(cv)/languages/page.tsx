@@ -90,39 +90,39 @@ export default function LanguagesPage() {
 
   const handleSave = useCallback(
     (data: LanguageFormValues) => {
-      const mapped: LanguageType[] = data.languages
-        .map((entry) => {
-          const language = entry.language.trim();
-          if (!language) {
-            return null;
-          }
+      const mapped: LanguageType[] = data.languages.reduce<LanguageType[]>((acc, entry) => {
+        const language = entry.language.trim();
+        if (!language) {
+          return acc;
+        }
 
-          const certificateName = entry.certificateName?.trim() || "";
-          const certificateDate = entry.certificateDate?.trim() || "";
-          const certificateExpires = entry.certificateExpires?.trim() || "";
-          const parsedCertificateDate = certificateDate
-            ? parseDateInput(certificateDate)
-            : undefined;
-          const parsedCertificateExpires = certificateExpires
-            ? parseDateInput(certificateExpires)
-            : undefined;
+        const certificateName = entry.certificateName?.trim() || "";
+        const certificateDate = entry.certificateDate?.trim() || "";
+        const certificateExpires = entry.certificateExpires?.trim() || "";
+        const parsedCertificateDate = certificateDate
+          ? parseDateInput(certificateDate)
+          : undefined;
+        const parsedCertificateExpires = certificateExpires
+          ? parseDateInput(certificateExpires)
+          : undefined;
 
-          const certificate = certificateName
-            ? {
-                name: certificateName,
-                date: parsedCertificateDate || undefined,
-                expires: parsedCertificateExpires || undefined,
-              }
-            : undefined;
+        const certificate = certificateName
+          ? {
+              name: certificateName,
+              date: parsedCertificateDate || undefined,
+              expires: parsedCertificateExpires || undefined,
+            }
+          : undefined;
 
-          return {
-            language,
-            proficiencyLevel: entry.proficiencyLevel || undefined,
-            cefrLevel: entry.cefrLevel || undefined,
-            certificate,
-          };
-        })
-        .filter((entry): entry is LanguageType => Boolean(entry));
+        acc.push({
+          language,
+          proficiencyLevel: entry.proficiencyLevel || undefined,
+          cefrLevel: entry.cefrLevel || undefined,
+          certificate,
+        });
+
+        return acc;
+      }, []);
 
       dispatch(setLanguagesData(mapped));
     },
@@ -261,11 +261,15 @@ export default function LanguagesPage() {
                           className={styles.customInput}
                           placeholder="MM/YYYY or DD/MM/YYYY (optional)"
                           {...register(certDatePath, {
-                            validate: (value) =>
-                              !value ||
-                              /^(0[1-9]|1[0-2])\/\d{4}$|^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(
-                                value,
-                              ) || "Use MM/YYYY or DD/MM/YYYY",
+                            validate: (value) => {
+                              const dateValue = typeof value === "string" ? value : "";
+                              return (
+                                !dateValue ||
+                                /^(0[1-9]|1[0-2])\/\d{4}$|^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(
+                                  dateValue,
+                                ) || "Use MM/YYYY or DD/MM/YYYY"
+                              );
+                            },
                           })}
                         />
                         <div className={styles.validationSlot}>
@@ -285,11 +289,15 @@ export default function LanguagesPage() {
                           className={styles.customInput}
                           placeholder="MM/YYYY or DD/MM/YYYY (optional)"
                           {...register(certExpiresPath, {
-                            validate: (value) =>
-                              !value ||
-                              /^(0[1-9]|1[0-2])\/\d{4}$|^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(
-                                value,
-                              ) || "Use MM/YYYY or DD/MM/YYYY",
+                            validate: (value) => {
+                              const dateValue = typeof value === "string" ? value : "";
+                              return (
+                                !dateValue ||
+                                /^(0[1-9]|1[0-2])\/\d{4}$|^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/.test(
+                                  dateValue,
+                                ) || "Use MM/YYYY or DD/MM/YYYY"
+                              );
+                            },
                           })}
                         />
                         <div className={styles.validationSlot}>
